@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Practice Dashboard</title>
+    <style>
+      :root {
+        --bg: #f7f7f5; --surface: #ffffff; --text: #1d1d1b; --muted: #6b6b66; --border: #e3e3de;
+        --passed: #2f7d4f; --failed: #c0392b; --gave_up: #a0a09a; --accent: #2f7d4f;
+        --easy: #2f7d4f; --medium: #b7791f; --hard: #c0392b;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #161615; --surface: #1f1f1d; --text: #ececea; --muted: #9a9a94; --border: #33332f;
+          --passed: #4caf74; --failed: #e0605a; --gave_up: #6f6f6a; --accent: #4caf74;
+          --easy: #4caf74; --medium: #d69e2e; --hard: #e0605a;
+        }
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.5 system-ui, -apple-system, sans-serif; }
+      header { background: var(--surface); border-bottom: 1px solid var(--border); }
+      .wrap { max-width: 1040px; margin: 0 auto; padding: 0 16px; }
+      header .wrap { display: flex; align-items: center; gap: 24px; height: 56px; }
+      header h1 { font-size: 16px; margin: 0; }
+      nav { display: flex; gap: 4px; }
+      nav a { color: var(--muted); text-decoration: none; padding: 6px 12px; border-radius: 6px; }
+      nav a.active { color: var(--text); background: var(--bg); font-weight: 600; }
+      main.wrap { padding-top: 24px; padding-bottom: 48px; }
+      .note { color: var(--muted); margin: 0 0 16px; }
+      .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; margin-bottom: 24px; }
+      .kpi, .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+      .kpi .label { color: var(--muted); font-size: 12px; }
+      .kpi .value { font-size: 26px; font-weight: 600; font-variant-numeric: tabular-nums; }
+      .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+      .card h2 { font-size: 14px; margin: 0 0 12px; }
+      .legend { display: flex; gap: 14px; font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+      .legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; background: var(--c); vertical-align: -1px; }
+      .bar-row { display: grid; grid-template-columns: 130px 1fr 44px; gap: 10px; align-items: center; margin: 7px 0; font-size: 13px; }
+      .bar-row .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .bar-row .count { text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
+      .bar { display: flex; height: 14px; border-radius: 3px; overflow: hidden; background: var(--bg); gap: 2px; }
+      .bar div { height: 100%; }
+      .empty { color: var(--muted); padding: 32px 0; text-align: center; }
+      table { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+      th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+      th { font-size: 12px; color: var(--muted); font-weight: 500; }
+      tbody tr.problem { cursor: pointer; }
+      tbody tr.problem:hover { background: var(--bg); }
+      tr.detail td { background: var(--bg); padding: 0; }
+      .attempt { padding: 14px 16px; border-top: 1px solid var(--border); }
+      .attempt:first-child { border-top: 0; }
+      .attempt h3 { font-size: 13px; margin: 0 0 8px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+      .attempt dl { margin: 0; display: grid; grid-template-columns: 130px 1fr; gap: 6px 12px; }
+      .attempt dt { color: var(--muted); }
+      .attempt dd { margin: 0; }
+      .attempt ul { margin: 0; padding-left: 18px; }
+      .pill { display: inline-block; font-size: 12px; padding: 1px 8px; border-radius: 999px; color: #fff; background: var(--c); white-space: nowrap; }
+      .diff { font-size: 12px; color: var(--c); font-weight: 600; }
+      .muted { color: var(--muted); }
+      a { color: var(--accent); }
+      .filters { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+      .filters input, .filters select { font: inherit; padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text); }
+      .filters input { flex: 1; min-width: 180px; }
+      .error { color: var(--failed); }
+      @media (max-width: 640px) {
+        .hide-sm { display: none; }
+        .attempt dl { grid-template-columns: 1fr; }
+        .bar-row { grid-template-columns: 96px 1fr 36px; }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="wrap">
+        <h1>LeetCode practice</h1>
+        <nav>
+          <a href="#dashboard" data-view="dashboard">Dashboard</a>
+          <a href="#problems" data-view="problems">Problems</a>
+        </nav>
+      </div>
+    </header>
+    <main class="wrap" id="main"><p class="note">Loading…</p></main>
+    <script>
+      const STATUSES = [
+        ["passed", "Passed"],
+        ["failed", "Failed"],
+        ["gave_up", "Gave up"],
+      ];
+      const STATUS_LABEL = Object.fromEntries(STATUSES);
+      const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+      const pill = (s) => `<span class="pill" style="--c: var(--${esc(s)})">${esc(STATUS_LABEL[s] ?? s)}</span>`;
+      const diff = (d) => (d ? `<span class="diff" style="--c: var(--${esc(d.toLowerCase())})">${esc(d)}</span>` : "");
+      const pct = (n, d) => (d ? `${Math.round((n / d) * 100)}%` : "—");
+      const mins = (m) => (m == null ? "—" : `${m} min`);
+
+      let data = null;
+      let lastText = null;
+      let filters = { q: "", status: "", category: "" };
+      const open = new Set();
+
+      function countBy(list, key) {
+        const out = new Map();
+        for (const a of list) {
+          const k = key(a) ?? "Unknown";
+          const c = out.get(k) ?? { passed: 0, failed: 0, gave_up: 0, total: 0 };
+          c[a.status] = (c[a.status] ?? 0) + 1;
+          c.total++;
+          out.set(k, c);
+        }
+        return [...out.entries()].sort((a, b) => b[1].total - a[1].total);
+      }
+
+      function stackedBars(rows) {
+        if (!rows.length) return `<div class="empty">No attempts yet.</div>`;
+        const max = Math.max(...rows.map(([, c]) => c.total));
+        return rows
+          .map(([name, c]) => {
+            const segs = STATUSES.filter(([s]) => c[s])
+              .map(([s, label]) => `<div title="${label}: ${c[s]}" style="width:${(c[s] / max) * 100}%; background: var(--${s})"></div>`)
+              .join("");
+            return `<div class="bar-row"><span class="name" title="${esc(name)}">${esc(name)}</span><div class="bar">${segs}</div><span class="count">${c.passed}/${c.total}</span></div>`;
+          })
+          .join("");
+      }
+
+      const legend = `<div class="legend">${STATUSES.map(([s, l]) => `<span style="--c: var(--${s})">${l}</span>`).join("")}</div>`;
+
+      function renderDashboard() {
+        const a = data.attempts;
+        const n = (s) => a.filter((x) => x.status === s).length;
+        const problems = new Set(a.map((x) => x.slug)).size;
+        const passedTimes = a.filter((x) => x.status === "passed" && x.time_taken_min != null).map((x) => x.time_taken_min);
+        const avg = passedTimes.length ? Math.round((passedTimes.reduce((s, t) => s + t, 0) / passedTimes.length) * 10) / 10 : null;
+        const gapCounts = new Map();
+        for (const x of a) for (const g of x.gaps) gapCounts.set(g.tag, (gapCounts.get(g.tag) ?? 0) + 1);
+        const gaps = [...gapCounts.entries()].sort((x, y) => y[1] - x[1]);
+        const gapMax = Math.max(1, ...gaps.map(([, c]) => c));
+
+        const kpis = [
+          ["Problems practiced", problems],
+          ["Attempts", a.length],
+          ["Passed", n("passed")],
+          ["Failed", n("failed")],
+          ["Gave up", n("gave_up")],
+          ["Pass rate", pct(n("passed"), a.length)],
+          ["Avg time to pass", mins(avg)],
+        ]
+          .map(([l, v]) => `<div class="kpi"><div class="label">${l}</div><div class="value">${esc(v)}</div></div>`)
+          .join("");
+
+        const recent = a.slice(0, 8);
+        return `
+          ${pendingNote()}
+          <div class="kpis">${kpis}</div>
+          <div class="grid">
+            <div class="card"><h2>Results by category</h2>${legend}${stackedBars(countBy(a, (x) => x.category))}</div>
+            <div class="card"><h2>Results by difficulty</h2>${legend}${stackedBars(countBy(a, (x) => x.difficulty))}</div>
+            <div class="card"><h2>Most common gaps</h2>${
+              gaps.length
+                ? gaps
+                    .map(([tag, c]) => `<div class="bar-row"><span class="name">${esc(tag)}</span><div class="bar"><div style="width:${(c / gapMax) * 100}%; background: var(--muted)"></div></div><span class="count">${c}</span></div>`)
+                    .join("")
+                : `<div class="empty">No gaps recorded.</div>`
+            }</div>
+            <div class="card"><h2>Recent attempts</h2>${
+              recent.length
+                ? recent
+                    .map((x) => `<div class="bar-row" style="grid-template-columns: 1fr auto auto"><a class="name" href="#problems" data-open="${esc(x.slug)}">${esc(x.title)}</a><span class="muted">${esc(x.date)}</span>${pill(x.status)}</div>`)
+                    .join("")
+                : `<div class="empty">No attempts yet.</div>`
+            }</div>
+          </div>`;
+      }
+
+      function pendingNote() {
+        return data.pending_analysis
+          ? `<p class="note">${data.pending_analysis} finished session${data.pending_analysis === 1 ? " is" : "s are"} still being analyzed and will appear here when done.</p>`
+          : "";
+      }
+
+      function groupProblems() {
+        const bySlug = new Map();
+        for (const a of data.attempts) {
+          const p = bySlug.get(a.slug) ?? { slug: a.slug, title: a.title, difficulty: a.difficulty, category: a.category, attempts: [] };
+          p.attempts.push(a); // newest first, from the server's order
+          bySlug.set(a.slug, p);
+        }
+        return [...bySlug.values()];
+      }
+
+      function renderProblems() {
+        const categories = [...new Set(data.attempts.map((a) => a.category))].sort();
+        const q = filters.q.toLowerCase();
+        const problems = groupProblems().filter((p) => {
+          const latest = p.attempts[0];
+          return (
+            (!q || p.title.toLowerCase().includes(q) || p.slug.includes(q)) &&
+            (!filters.status || latest.status === filters.status) &&
+            (!filters.category || p.category === filters.category)
+          );
+        });
+        const option = (v, l, cur) => `<option value="${esc(v)}" ${v === cur ? "selected" : ""}>${esc(l)}</option>`;
+        const rows = problems
+          .map((p) => {
+            const latest = p.attempts[0];
+            const passes = p.attempts.filter((a) => a.status === "passed").length;
+            const best = Math.min(...p.attempts.filter((a) => a.status === "passed" && a.time_taken_min != null).map((a) => a.time_taken_min));
+            const row = `<tr class="problem" data-slug="${esc(p.slug)}">
+              <td><strong>${esc(p.title)}</strong><div>${diff(p.difficulty)}</div></td>
+              <td class="hide-sm">${esc(p.category)}</td>
+              <td>${pill(latest.status)}</td>
+              <td class="hide-sm">${passes}/${p.attempts.length}</td>
+              <td class="hide-sm">${Number.isFinite(best) ? mins(best) : "—"}</td>
+              <td class="hide-sm">${esc(latest.date)}</td>
+            </tr>`;
+            return open.has(p.slug) ? row + `<tr class="detail"><td colspan="6">${p.attempts.map(renderAttempt).join("")}</td></tr>` : row;
+          })
+          .join("");
+        return `
+          ${pendingNote()}
+          <div class="filters">
+            <input id="q" type="search" placeholder="Search problems" value="${esc(filters.q)}" />
+            <select id="status">${option("", "Any latest result", filters.status)}${STATUSES.map(([s, l]) => option(s, l, filters.status)).join("")}</select>
+            <select id="category">${option("", "All categories", filters.category)}${categories.map((c) => option(c, c, filters.category)).join("")}</select>
+          </div>
+          ${
+            problems.length
+              ? `<table><thead><tr><th>Problem</th><th class="hide-sm">Category</th><th>Latest</th><th class="hide-sm">Passed</th><th class="hide-sm">Best time</th><th class="hide-sm">Last tried</th></tr></thead><tbody>${rows}</tbody></table>`
+              : `<div class="empty">${data.attempts.length ? "No problems match these filters." : "No attempts yet. Finish a session on LeetCode and it will show up here."}</div>`
+          }`;
+      }
+
+      function renderAttempt(a) {
+        const field = (label, v) => (v ? `<dt>${label}</dt><dd>${v}</dd>` : "");
+        const list = (items) => (items.length ? `<ul>${items.join("")}</ul>` : "");
+        return `<div class="attempt">
+          <h3>${esc(a.date)} ${pill(a.status)} <span class="muted">${mins(a.time_taken_min)}</span>
+            <a href="https://leetcode.com/problems/${encodeURIComponent(a.slug)}/" target="_blank" rel="noopener">Open on LeetCode ↗</a></h3>
+          <dl>
+            ${field("Why it " + (a.status === "passed" ? "passes" : "doesn't pass"), esc(a.verdict_reason))}
+            ${field("Approach", esc(a.approach_pattern))}
+            ${field("How it went", esc(a.approach_summary))}
+            ${field("Complexity", a.time_complexity ? `time ${esc(a.time_complexity)} · space ${esc(a.space_complexity)}` : "")}
+            ${field("Strengths", list(a.strengths.map((s) => `<li>${esc(s)}</li>`)))}
+            ${field("Gaps", list(a.gaps.map((g) => `<li><strong>${esc(g.tag)}</strong>: ${esc(g.detail)}</li>`)))}
+            ${field("Optimal approach", esc(a.optimal_approach))}
+            ${field("Confidence", a.confidence != null ? `${Math.round(a.confidence * 100)}%` : "")}
+          </dl>
+        </div>`;
+      }
+
+      function view() {
+        return location.hash === "#problems" ? "problems" : "dashboard";
+      }
+
+      function render() {
+        const v = view();
+        document.querySelectorAll("nav a").forEach((a) => a.classList.toggle("active", a.dataset.view === v));
+        if (!data) return;
+        const main = document.getElementById("main");
+        main.innerHTML = v === "problems" ? renderProblems() : renderDashboard();
+        if (v === "problems") {
+          const q = document.getElementById("q");
+          q.addEventListener("input", () => {
+            filters.q = q.value;
+            const pos = q.selectionStart;
+            render();
+            const next = document.getElementById("q");
+            next.focus();
+            next.setSelectionRange(pos, pos);
+          });
+          for (const id of ["status", "category"]) {
+            document.getElementById(id).addEventListener("change", (e) => {
+              filters[id] = e.target.value;
+              render();
+            });
+          }
+        }
+      }
+
+      document.addEventListener("click", (e) => {
+        const jump = e.target.closest("[data-open]");
+        if (jump) open.add(jump.dataset.open);
+        const row = e.target.closest("tr.problem");
+        if (row) {
+          const slug = row.dataset.slug;
+          open.has(slug) ? open.delete(slug) : open.add(slug);
+          render();
+        }
+      });
+      window.addEventListener("hashchange", render);
+
+      async function load() {
+        try {
+          const res = await fetch("/api/attempts");
+          if (!res.ok) throw new Error(`server returned ${res.status}`);
+          const text = await res.text();
+          if (text === lastText) return; // nothing new; don't disturb an open search box
+          lastText = text;
+          data = JSON.parse(text);
+          render();
+        } catch (err) {
+          document.getElementById("main").innerHTML = `<p class="error">Couldn't load your practice log: ${esc(err.message)}</p>`;
+        }
+      }
+      render();
+      load();
+      // Pick up newly analyzed sessions while the tab stays open.
+      setInterval(() => document.visibilityState === "visible" && load(), 30_000);
+    </script>
+  </body>
+</html>

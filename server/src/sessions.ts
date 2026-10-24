@@ -1,10 +1,8 @@
 // Facts about a session that code can compute exactly. The agent reads these; it never estimates them.
 import { config, localDate } from "./config.js";
 import type { JudgeEventRow, SessionRow, SnapshotRow } from "./db.js";
-import type { AttemptStatus } from "./taxonomy.js";
 
 export interface SessionMetrics {
-  status: AttemptStatus;
   date: string;
   /** Minutes of activity, with gaps over `activityGapCapMinutes` clipped (stepping away doesn't count). */
   active_minutes: number;
@@ -23,8 +21,6 @@ const round1 = (n: number) => Math.round(n * 10) / 10;
 export function computeMetrics(session: SessionRow, snapshots: SnapshotRow[], judge: JudgeEventRow[]): SessionMetrics {
   const submits = judge.filter((j) => j.kind === "submit");
   const accepted = submits.find((j) => j.status === "Accepted");
-  const status: AttemptStatus = accepted ? "passed" : session.end_reason === "gave_up" ? "gave_up" : "failed";
-
   // Time stops at the first Accepted submit; activity after that (e.g. tidying up) isn't solve time.
   const end = accepted?.ts ?? lastActivity(session, snapshots, judge);
   const activity = [session.started_at, ...snapshots.map((s) => s.ts), ...judge.map((j) => j.ts)]
@@ -36,7 +32,6 @@ export function computeMetrics(session: SessionRow, snapshots: SnapshotRow[], ju
   }
 
   return {
-    status,
     date: localDate(new Date(session.started_at)),
     active_minutes: round1(active),
     wall_minutes: round1(minutesBetween(session.started_at, end)),

@@ -25,7 +25,7 @@ const minute = (ts: string) => Math.round(((Date.parse(ts) - Date.parse(session.
 const tags: string[] = problem ? JSON.parse(problem.tags) : [];
 
 const fixture: AnalyzeFixture & { _todo: string } = {
-  _todo: "Fill in expected.required_gaps, pattern_keywords, and must_not_claim, check expected.category, then delete this line.",
+  _todo: "Fill in expected.required_gaps, pattern_keywords, and must_not_claim, check expected.status (is the final code actually correct?) and expected.category, then delete this line.",
   id: `${session.slug}-${localDate(new Date(session.started_at))}`,
   description: "Captured from a real session.",
   problem: {
@@ -46,7 +46,7 @@ const fixture: AnalyzeFixture & { _todo: string } = {
     ...(j.error_detail ? { error_detail: j.error_detail } : {}),
   })),
   expected: {
-    status: m.status,
+    status: m.first_accepted_at ? "passed" : session.end_reason === "gave_up" ? "gave_up" : "failed",
     category: [(problem?.category as Category) ?? categoryFromTags(tags, problem?.title)],
     required_gaps: [],
     pattern_keywords: [],

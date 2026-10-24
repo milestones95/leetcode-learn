@@ -1,5 +1,7 @@
 const $ = (id) => document.getElementById(id);
 let slug = null;
+let tabId = null;
+let session = null;
 let startedAt = null;
 let timer = null;
 
@@ -12,6 +14,7 @@ const fmt = (min) => {
 async function refresh() {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   slug = tab?.url?.match(/leetcode\.com\/problems\/([^/]+)/)?.[1] ?? null;
+  tabId = tab?.id ?? null;
   if (!slug) {
     $("content").textContent = "Open a LeetCode problem to start a session.";
     return;
@@ -24,6 +27,7 @@ async function refresh() {
     return;
   }
   const s = status.session;
+  session = s;
   if (!s) {
     $("content").textContent = `No session yet for ${slug}.`;
     return;
@@ -71,11 +75,33 @@ async function showDiagnostics(tab) {
 }
 
 async function end(reason) {
-  await chrome.runtime.sendMessage({ type: "event", event: { type: "session_end", slug, reason, ts: new Date().toISOString() } });
+  const ts = new Date().toISOString();
+  // Pull in any submits the page hook missed first, so an Accepted one still counts.
+  // An Accepted submit ends the session by itself; otherwise end it as asked.
+  const warning = await backfill();
+  const status = await chrome.runtime.sendMessage({ type: "status", slug });
+  if (!status.ok || status.open) {
+    await chrome.runtime.sendMessage({ type: "event", event: { type: "session_end", slug, reason, ts } });
+  }
   clearInterval(timer);
   await refresh();
+  if (warning) $("error").textContent = warning;
 }
 
+/** Ask the page to re-send this session's submissions from LeetCode. Returns a warning, or null. */
+async function backfill() {
+  if (!tabId || !session) return null;
+  try {
+    const res = await chrome.tabs.sendMessage(tabId, { type: "backfill", slug, since: session.started_at });
+    return res?.ok ? null : `Couldn't check LeetCode for missed submissions: ${res?.error ?? "no response"}`;
+  } catch {
+    return "Couldn't check LeetCode for missed submissions (reload the page).";
+  }
+}
+
+const openPage = (hash) => chrome.tabs.create({ url: `http://localhost:7777/dashboard#${hash}` });
+$("view-dashboard").addEventListener("click", () => openPage("dashboard"));
+$("view-problems").addEventListener("click", () => openPage("problems"));
 $("end").addEventListener("click", () => end("ended"));
 $("giveup").addEventListener("click", () => end("gave_up"));
 refresh();

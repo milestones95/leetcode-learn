@@ -53,7 +53,8 @@ CREATE TABLE IF NOT EXISTS judge_events (
   runtime      TEXT,
   memory       TEXT,
   error_detail TEXT,
-  language     TEXT
+  language     TEXT,
+  submission_id TEXT             -- LeetCode's id; dedupes a result seen both live and via backfill
 );
 CREATE INDEX IF NOT EXISTS judge_session ON judge_events(session_id, ts);
 
@@ -68,6 +69,7 @@ CREATE TABLE IF NOT EXISTS attempts (
   category         TEXT NOT NULL,
   approach_pattern TEXT,
   approach_summary TEXT,
+  verdict_reason   TEXT,               -- why the final code would or wouldn't pass LeetCode's judge
   strengths        TEXT NOT NULL DEFAULT '[]',
   optimal_approach TEXT,
   time_complexity  TEXT,
@@ -98,7 +100,17 @@ export function openDb(dbPath = config.dbPath): DB {
   db.pragma("foreign_keys = ON");
   db.pragma("busy_timeout = 5000");
   db.exec(SCHEMA);
+  migrate(db);
   return db;
+}
+
+/** Bring databases created before a schema change up to date. */
+function migrate(db: DB): void {
+  const judgeCols = db.prepare(`PRAGMA table_info(judge_events)`).all() as Array<{ name: string }>;
+  if (!judgeCols.some((c) => c.name === "submission_id")) db.exec(`ALTER TABLE judge_events ADD COLUMN submission_id TEXT`);
+  db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS judge_submission ON judge_events(session_id, submission_id)`);
+  const attemptCols = db.prepare(`PRAGMA table_info(attempts)`).all() as Array<{ name: string }>;
+  if (!attemptCols.some((c) => c.name === "verdict_reason")) db.exec(`ALTER TABLE attempts ADD COLUMN verdict_reason TEXT`);
 }
 
 let shared: DB | undefined;
@@ -154,6 +166,7 @@ export interface JudgeEventRow {
   memory: string | null;
   error_detail: string | null;
   language: string | null;
+  submission_id: string | null;
 }
 
 export interface AttemptRow {
@@ -166,6 +179,7 @@ export interface AttemptRow {
   category: Category;
   approach_pattern: string | null;
   approach_summary: string | null;
+  verdict_reason: string | null;
   strengths: string;
   optimal_approach: string | null;
   time_complexity: string | null;
@@ -239,6 +253,11 @@ export function findOpenSession(db: DB, slug: string): SessionRow | undefined {
     .get(slug) as SessionRow | undefined;
 }
 
+/** The most recent session for a slug, open or ended. */
+export function latestSession(db: DB, slug: string): SessionRow | undefined {
+  return db.prepare(`SELECT * FROM sessions WHERE slug = ? ORDER BY started_at DESC LIMIT 1`).get(slug) as SessionRow | undefined;
+}
+
 export function createSession(db: DB, id: string, slug: string, ts: string): SessionRow {
   db.prepare(`INSERT INTO sessions (id, slug, started_at, last_activity_at) VALUES (?, ?, ?, ?)`).run(id, slug, ts, ts);
   return getSession(db, id)!;
@@ -285,11 +304,23 @@ export function listJudgeEvents(db: DB, sessionId: string): JudgeEventRow[] {
   return db.prepare(`SELECT * FROM judge_events WHERE session_id = ? ORDER BY ts, id`).all(sessionId) as JudgeEventRow[];
 }
 
-export function insertJudgeEvent(db: DB, e: Omit<JudgeEventRow, "id">): void {
+export function insertJudgeEvent(db: DB, e: Omit<JudgeEventRow, "id" | "submission_id"> & { submission_id?: string | null }): void {
   db.prepare(
-    `INSERT INTO judge_events (session_id, ts, kind, status, tests_passed, tests_total, runtime, memory, error_detail, language)
-     VALUES (@session_id, @ts, @kind, @status, @tests_passed, @tests_total, @runtime, @memory, @error_detail, @language)`,
-  ).run(e);
+    `INSERT INTO judge_events (session_id, ts, kind, status, tests_passed, tests_total, runtime, memory, error_detail, language, submission_id)
+     VALUES (@session_id, @ts, @kind, @status, @tests_passed, @tests_total, @runtime, @memory, @error_detail, @language, @submission_id)`,
+  ).run({ ...e, submission_id: e.submission_id ?? null });
+}
+
+export function hasJudgeEvent(db: DB, sessionId: string, submissionId: string): boolean {
+  return Boolean(db.prepare(`SELECT 1 FROM judge_events WHERE session_id = ? AND submission_id = ?`).get(sessionId, submissionId));
+}
+
+/** Mark an ended session as Accepted after the fact, discarding any analysis made without that result. */
+export function markAccepted(db: DB, id: string): void {
+  db.transaction(() => {
+    db.prepare(`DELETE FROM attempts WHERE session_id = ?`).run(id);
+    db.prepare(`UPDATE sessions SET end_reason = 'accepted' WHERE id = ?`).run(id);
+  })();
 }
 
 // ---- Attempts ----
@@ -301,9 +332,9 @@ export function insertAttempt(db: DB, a: AttemptInput, gaps: GapInput[]): number
     const { lastInsertRowid } = db
       .prepare(
         `INSERT INTO attempts (session_id, slug, date, status, time_taken_min, category, approach_pattern, approach_summary,
-           strengths, optimal_approach, time_complexity, space_complexity, confidence, source, created_at)
+           verdict_reason, strengths, optimal_approach, time_complexity, space_complexity, confidence, source, created_at)
          VALUES (@session_id, @slug, @date, @status, @time_taken_min, @category, @approach_pattern, @approach_summary,
-           @strengths, @optimal_approach, @time_complexity, @space_complexity, @confidence, @source, @created_at)`,
+           @verdict_reason, @strengths, @optimal_approach, @time_complexity, @space_complexity, @confidence, @source, @created_at)`,
       )
       .run({ ...a, strengths: JSON.stringify(a.strengths), created_at: new Date().toISOString() });
     const insertGap = db.prepare(`INSERT INTO attempt_gaps (attempt_id, tag, detail) VALUES (?, ?, ?)`);

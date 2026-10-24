@@ -9,6 +9,8 @@ export interface NormalizedJudge {
   memory: string | null;
   error_detail: string | null;
   language: string | null;
+  /** LeetCode's id for this run/submit, used to recognize the same result arriving twice. */
+  submission_id: string | null;
 }
 
 type Raw = Record<string, unknown>;
@@ -54,6 +56,7 @@ export function normalizeJudge(raw: Raw, url = ""): NormalizedJudge {
     memory: str(raw.status_memory),
     error_detail: error ? clip(error) : null,
     language: str(raw.lang ?? raw.pretty_lang),
+    submission_id: str(raw.submission_id) ?? url.match(/\/detail\/([^/]+)\/check/)?.[1] ?? null,
   };
 }
 

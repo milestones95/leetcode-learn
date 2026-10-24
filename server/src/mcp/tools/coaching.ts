@@ -68,6 +68,7 @@ export function registerCoachingTools(server: McpServer, db: DB) {
           time_taken_min: r.time_taken_min,
           approach_pattern: r.approach_pattern,
           approach_summary: r.approach_summary,
+          verdict_reason: r.verdict_reason,
           strengths: JSON.parse(r.strengths),
           gaps: gaps.get(r.id) ?? [],
         })),

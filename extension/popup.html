@@ -9,7 +9,8 @@
       .row { display: flex; justify-content: space-between; margin: 2px 0; }
       .muted { color: var(--muted); }
       .timer { font-size: 22px; font-variant-numeric: tabular-nums; margin: 6px 0; }
-      .buttons { display: flex; gap: 8px; margin-top: 10px; }
+      .buttons, .nav { display: flex; gap: 8px; margin-top: 10px; }
+      .nav { margin: 0 0 12px; padding-bottom: 12px; border-bottom: 1px solid #8884; }
       .buttons[hidden] { display: none; }
       .diag { margin-top: 8px; font-size: 12px; }
       .diag .bad { color: #c0392b; }
@@ -19,6 +20,10 @@
     </style>
   </head>
   <body>
+    <div class="nav">
+      <button id="view-dashboard">View dashboard</button>
+      <button id="view-problems">View problems</button>
+    </div>
     <h1>Practice session</h1>
     <div id="content" class="muted">Loading…</div>
     <div class="buttons" id="buttons" hidden>

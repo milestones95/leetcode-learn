@@ -8,8 +8,10 @@ import path from "node:path";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { ROOT } from "../server/src/config.js";
-import { getSession, openDb } from "../server/src/db.js";
+import { findOpenSession, getAttemptBySession, getSession, listJudgeEvents, listSnapshots, openDb } from "../server/src/db.js";
 import { Ingest, createServer } from "../server/src/ingest.js";
+import { renderTimeline } from "../server/src/mcp/tools/session.js";
+import { computeMetrics } from "../server/src/sessions.js";
 import { type CoachFixture, loadCoachFixture, readFixtures } from "../evals/fixtures.js";
 
 const dir = fs.mkdtempSync(path.join(os.tmpdir(), "lca-smoke-"));
@@ -106,6 +108,69 @@ check("idle page views are ended and skipped", () => {
   assert.equal(s.analysis_status, "skipped");
 });
 
+// ---- Backfill: submits the page hook missed, re-sent from LeetCode's history when you click End ----
+const backfilled = (slug: string, ts: string, id: string, status_msg: string) =>
+  ingest.handle({
+    type: "judge",
+    slug,
+    ts,
+    data: { state: "SUCCESS", submission_id: id, status_msg, total_correct: status_msg === "Accepted" ? 10 : 7, total_testcases: 10, lang: "python3" },
+    code: `# ${slug} ${id}`,
+  });
+const judgeCount = (id: string) => (db.prepare(`SELECT COUNT(*) n FROM judge_events WHERE session_id = ?`).get(id) as { n: number }).n;
+const statusOf = (id: string) => {
+  const s = getSession(db, id)!;
+  return computeMetrics(s, listSnapshots(db, id), listJudgeEvents(db, id));
+};
+
+const bf1 = ingest.handle({ type: "problem_view", slug: "valid-palindrome", ts: at(30) }).session_id!;
+ingest.handle({ type: "snapshot", slug: "valid-palindrome", ts: at(31), language: "python3", code: "class Solution: ..." });
+const failed = backfilled("valid-palindrome", at(33), "5001", "Wrong Answer");
+check("a failed submit doesn't end the session", () => {
+  assert.equal(failed.ended, undefined);
+  assert.equal(getSession(db, bf1)!.ended_at, null);
+});
+const acc = backfilled("valid-palindrome", at(35), "5002", "Accepted");
+backfilled("valid-palindrome", at(35), "5002", "Accepted"); // seen live and via backfill
+check("a backfilled Accepted submit ends the session, timed to the submit", () => {
+  assert.equal(acc.ended, true);
+  const m = statusOf(bf1);
+  assert.equal(getSession(db, bf1)!.end_reason, "accepted");
+  assert.equal(m.first_accepted_at, at(35));
+  assert.equal(m.wall_minutes, 5);
+});
+check("the same submission arriving twice is stored once", () => assert.equal(judgeCount(bf1), 2));
+
+const bf2 = ingest.handle({ type: "problem_view", slug: "contains-duplicate", ts: at(40) }).session_id!;
+ingest.handle({ type: "snapshot", slug: "contains-duplicate", ts: at(41), language: "python3", code: "class Solution: ..." });
+ingest.handle({ type: "session_end", slug: "contains-duplicate", ts: at(50), reason: "ended" });
+check("End with no Accepted submit records no accept", () => assert.equal(statusOf(bf2).first_accepted_at, null));
+backfilled("contains-duplicate", at(44), "6001", "Accepted"); // arrived after End
+await new Promise((r) => setTimeout(r, 20));
+check("an Accepted submit arriving after End corrects the ended session", () => {
+  assert.equal(statusOf(bf2).first_accepted_at, at(44));
+  assert.equal(getSession(db, bf2)!.end_reason, "accepted");
+  assert.ok(analyzed.includes(bf2)); // still queued from End, so it runs once, on the corrected data
+  assert.equal(getSession(db, bf2)!.analysis_status, "done");
+  assert.equal(findOpenSession(db, "contains-duplicate"), undefined);
+});
+
+// ---- Timeline: an approach that was tried and deleted stays in the story ----
+{
+  const snap = (i: number, code: string) => ({ id: i, session_id: "t", ts: at(i), language: "python3", code, partial: 0 });
+  const header = "class Solution:\n    def topKFrequent(self, nums, k):";
+  const sorting = `${header}\n        counts = {}\n        for n in nums:\n            counts[n] = counts.get(n, 0) + 1\n        pairs = sorted(counts.items(), key=lambda p: -p[1])\n        return [p[0] for p in pairs[:k]]`;
+  const snaps = [snap(0, header)];
+  for (let i = 1; i <= 10; i++) snaps.push(snap(i, i === 10 ? sorting : `${header}\n        # thinking ${i}`));
+  for (let i = 11; i <= 30; i++) snaps.push(snap(i, `${header}\n        heap = []  # step ${i}`));
+  const timeline = renderTimeline(at(0), snaps, [], 4);
+  check("the timeline keeps code that was later deleted, and marks it", () => {
+    assert.match(timeline, /showing 4\./);
+    assert.match(timeline, /\[10 min\] Edit \(diff from previous shown snapshot, just before this code was deleted or rewritten\)/);
+    assert.match(timeline, /sorted\(counts\.items\(\)/);
+  });
+}
+
 // ---- HTTP ----
 console.log("http");
 const server = createServer(ingest);
@@ -150,7 +215,7 @@ check("lists all 9 tools", () => assert.equal(tools.length, 9));
 
 const sess = (await s.call("get_session", { session_id })).json();
 check("get_session reports computed metrics", () => {
-  assert.equal(sess.metrics.status, "passed");
+  assert.equal(sess.metrics.status, undefined); // pass/fail is the analyzer's verdict, not a metric
   assert.equal(sess.metrics.submit_count, 2);
   assert.equal(sess.metrics.failed_submit_count, 1);
   assert.equal(sess.metrics.wall_minutes, 12);
@@ -171,6 +236,8 @@ const attempt = {
   category: "Arrays & Hashing",
   approach_pattern: "hash map, one pass",
   approach_summary: "Started brute force, switched to a hash map.",
+  verdict: "passed",
+  verdict_reason: "Correct on [2,7,11,15], [3,2,4], [3,3]; O(n) fits n <= 10^4.",
   strengths: ["Switched to the optimal approach"],
   gaps: [{ tag: "edge-cases", detail: "Missed duplicate values like [3,3]." }],
   optimal_approach: "One-pass hash map, O(n).",
@@ -181,9 +248,10 @@ const attempt = {
 const saved = await s.call("save_attempt", attempt);
 const again = await s.call("save_attempt", attempt);
 const invalid = await s.call("save_attempt", { ...attempt, session_id: "nope", category: "Not A Category" });
-check("save_attempt writes once, fills status/time from data, rejects repeats and bad enums", () => {
+check("save_attempt writes once, takes status from the verdict, rejects repeats and bad enums", () => {
   assert.equal(saved.isError, false, saved.text);
   assert.equal(saved.json().status, "passed");
+  assert.equal(getAttemptBySession(db, session_id)!.verdict_reason, attempt.verdict_reason);
   assert.equal(again.isError, true);
   assert.equal(invalid.isError, true);
 });

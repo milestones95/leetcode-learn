@@ -81,6 +81,7 @@ function loadHistory(db: DB, history: HistoryAttempt[]) {
         category: h.category,
         approach_pattern: h.approach_pattern ?? null,
         approach_summary: null,
+        verdict_reason: null,
         strengths: [],
         optimal_approach: null,
         time_complexity: null,

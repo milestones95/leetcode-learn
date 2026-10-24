@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import http from "node:http";
 import { pathToFileURL } from "node:url";
 import { analyzeSession } from "./agent/analyze-session.js";
+import { dashboardData, dashboardHtml } from "./dashboard.js";
 import { config } from "./config.js";
 import {
   type DB,
@@ -13,11 +14,14 @@ import {
   findOpenSession,
   getDb,
   getSession,
+  hasJudgeEvent,
   insertJudgeEvent,
   insertSnapshot,
   lastSnapshot,
+  latestSession,
   listJudgeEvents,
   listSnapshots,
+  markAccepted,
   setAnalysisStatus,
   touchSession,
   upsertProblem,
@@ -72,14 +76,18 @@ export class Ingest {
         return { session_id: s.id };
       }
       case "judge": {
-        const s = this.openSession(e.slug, ts);
         const j = normalizeJudge(e.data, e.url);
+        // A result backfilled from LeetCode after you ended the session belongs to that session.
+        const past = this.endedSessionAt(e.slug, ts);
+        const s = past ?? this.openSession(e.slug, ts);
+        if (j.submission_id && hasJudgeEvent(this.db, s.id, j.submission_id)) return { session_id: s.id }; // already have it
         const language = e.language ?? j.language;
         if (e.code) this.addSnapshot(s.id, ts, e.code, language);
         insertJudgeEvent(this.db, { session_id: s.id, ts, ...j, language });
         touchSession(this.db, s.id, ts);
         if (j.kind === "submit" && j.status === "Accepted") {
-          this.finish(s.id, ts, "accepted");
+          if (past) this.reanalyzeAsAccepted(past);
+          else this.finish(s.id, ts, "accepted");
           return { session_id: s.id, ended: true };
         }
         return { session_id: s.id };
@@ -102,6 +110,22 @@ export class Ingest {
       this.finish(open.id, open.last_activity_at, "idle");
     }
     return createSession(this.db, randomUUID(), slug, ts);
+  }
+
+  /** The ended session whose time span contains `ts`, if no session is open for the slug. */
+  private endedSessionAt(slug: string, ts: string): SessionRow | undefined {
+    if (findOpenSession(this.db, slug)) return undefined;
+    const s = latestSession(this.db, slug);
+    return s?.ended_at && s.started_at <= ts && ts <= s.ended_at ? s : undefined;
+  }
+
+  /** An Accepted submit turned up for a session already ended another way: redo its analysis as passed. */
+  private reanalyzeAsAccepted(s: SessionRow) {
+    if (s.end_reason === "accepted") return;
+    markAccepted(this.db, s.id);
+    setAnalysisStatus(this.db, s.id, "pending");
+    console.log(`session ${s.id} (${s.slug}) had a missed Accepted submit; re-queued for analysis`);
+    this.enqueue(s.id);
   }
 
   private addSnapshot(sessionId: string, ts: string, code: string, language: string | null, partial?: boolean) {
@@ -171,12 +195,14 @@ export class Ingest {
 
   currentStatus(slug: string) {
     const open = findOpenSession(this.db, slug);
-    const latest =
-      open ??
-      (this.db.prepare(`SELECT * FROM sessions WHERE slug = ? ORDER BY started_at DESC LIMIT 1`).get(slug) as SessionRow | undefined);
+    const latest = open ?? latestSession(this.db, slug);
     if (!latest) return { session: null };
     const metrics = computeMetrics(latest, listSnapshots(this.db, latest.id), listJudgeEvents(this.db, latest.id));
     return { session: latest, metrics, open: !latest.ended_at };
+  }
+
+  dashboard() {
+    return dashboardData(this.db);
   }
 }
 
@@ -206,6 +232,11 @@ export function createServer(ingest: Ingest) {
     };
     try {
       if (req.method === "GET" && url.pathname === "/health") return send(200, { ok: true });
+      if (req.method === "GET" && url.pathname === "/dashboard") {
+        res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+        return res.end(dashboardHtml());
+      }
+      if (req.method === "GET" && url.pathname === "/api/attempts") return send(200, ingest.dashboard());
       if (req.method === "GET" && url.pathname === "/sessions/current") {
         const slug = url.searchParams.get("slug");
         if (!slug) return send(400, { error: "slug required" });

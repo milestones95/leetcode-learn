@@ -1,0 +1,99 @@
+{
+  "id": "longest-substring-tle-then-window",
+  "description": "Brute-force substring check hits TLE; user rewrites with a sliding window and set.",
+  "problem": {
+    "slug": "longest-substring-without-repeating-characters",
+    "title": "Longest Substring Without Repeating Characters",
+    "difficulty": "Medium",
+    "tags": [
+      "hash-table",
+      "string",
+      "sliding-window"
+    ],
+    "category": "Sliding Window",
+    "description": "Given a string s, find the length of the longest substring without duplicate characters. Constraints: 0 <= s.length <= 5 * 10^4."
+  },
+  "session": {
+    "started_at": "2026-10-20T15:00:00.000Z",
+    "ended_minute": 31.0,
+    "end_reason": "accepted"
+  },
+  "snapshots": [
+    {
+      "minute": 0,
+      "language": "python3",
+      "code": "class Solution:\n    def lengthOfLongestSubstring(self, s: str) -> int:\n        "
+    },
+    {
+      "minute": 6.0,
+      "language": "python3",
+      "code": "class Solution:\n    def lengthOfLongestSubstring(self, s: str) -> int:\n        best = 0\n        for i in range(len(s)):\n            for j in range(i, len(s)):\n                sub = s[i:j+1]\n                if len(set(sub)) == len(sub):\n                    best = max(best, len(sub))\n        return best"
+    },
+    {
+      "minute": 19.0,
+      "language": "python3",
+      "code": "class Solution:\n    def lengthOfLongestSubstring(self, s: str) -> int:\n        seen = set()\n        l = 0\n        best = 0\n        for r in range(len(s)):\n            while s[r] in seen:\n                seen.remove(s[l])\n                l += 1"
+    },
+    {
+      "minute": 26.0,
+      "language": "python3",
+      "code": "class Solution:\n    def lengthOfLongestSubstring(self, s: str) -> int:\n        seen = set()\n        l = 0\n        best = 0\n        for r in range(len(s)):\n            while s[r] in seen:\n                seen.remove(s[l])\n                l += 1\n            seen.add(s[r])\n            best = max(best, r - l + 1)\n        return best"
+    }
+  ],
+  "judge_events": [
+    {
+      "minute": 7.0,
+      "kind": "run",
+      "status": "Passed sample tests",
+      "tests_passed": 3,
+      "tests_total": 3
+    },
+    {
+      "minute": 8.5,
+      "kind": "submit",
+      "status": "Time Limit Exceeded",
+      "tests_passed": 986,
+      "tests_total": 988,
+      "error_detail": "Input: s = \"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!\\\"#$%&'()*+,-./:;<=>?@[\\\\]^_`{|}~ abcdefghij\u2026\""
+    },
+    {
+      "minute": 27.0,
+      "kind": "run",
+      "status": "Passed sample tests",
+      "tests_passed": 3,
+      "tests_total": 3
+    },
+    {
+      "minute": 31.0,
+      "kind": "submit",
+      "status": "Accepted",
+      "tests_passed": 988,
+      "tests_total": 988
+    }
+  ],
+  "expected": {
+    "status": "passed",
+    "category": [
+      "Sliding Window"
+    ],
+    "required_gaps": [
+      {
+        "tags": [
+          "complexity-constraints",
+          "pattern-recognition"
+        ],
+        "description": "Started with an O(n^3) brute force despite n up to 5*10^4, hit TLE, and only then switched to a sliding window."
+      }
+    ],
+    "pattern_keywords": [
+      "sliding window",
+      "window",
+      "two pointer"
+    ],
+    "time_complexity_includes": "n",
+    "must_not_claim": [
+      "that the brute-force version was Accepted",
+      "that the user never got an accepted solution"
+    ]
+  }
+}

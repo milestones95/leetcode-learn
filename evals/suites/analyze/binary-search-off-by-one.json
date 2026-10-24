@@ -1,0 +1,85 @@
+{
+  "id": "binary-search-off-by-one",
+  "description": "Binary search with mixed bound conventions: fails the sample run, then fixed with consistent inclusive bounds.",
+  "problem": {
+    "slug": "binary-search",
+    "title": "Binary Search",
+    "difficulty": "Easy",
+    "tags": [
+      "array",
+      "binary-search"
+    ],
+    "category": "Binary Search",
+    "description": "Given an array of integers nums which is sorted in ascending order, and an integer target, write a function to search target in nums. If target exists, then return its index. Otherwise, return -1. You must write an algorithm with O(log n) runtime complexity."
+  },
+  "session": {
+    "started_at": "2026-10-20T15:00:00.000Z",
+    "ended_minute": 16.0,
+    "end_reason": "accepted"
+  },
+  "snapshots": [
+    {
+      "minute": 0,
+      "language": "python3",
+      "code": "class Solution:\n    def search(self, nums: List[int], target: int) -> int:\n        "
+    },
+    {
+      "minute": 4.0,
+      "language": "python3",
+      "code": "class Solution:\n    def search(self, nums: List[int], target: int) -> int:\n        l, r = 0, len(nums)\n        while l < r:\n            m = (l + r) // 2\n            if nums[m] == target:\n                return m\n            elif nums[m] < target:\n                l = m + 1\n            else:\n                r = m - 1\n        return -1"
+    },
+    {
+      "minute": 13.0,
+      "language": "python3",
+      "code": "class Solution:\n    def search(self, nums: List[int], target: int) -> int:\n        l, r = 0, len(nums) - 1\n        while l <= r:\n            m = (l + r) // 2\n            if nums[m] == target:\n                return m\n            elif nums[m] < target:\n                l = m + 1\n            else:\n                r = m - 1\n        return -1"
+    }
+  ],
+  "judge_events": [
+    {
+      "minute": 5.0,
+      "kind": "run",
+      "status": "Wrong Answer (sample tests)",
+      "tests_passed": 1,
+      "tests_total": 2,
+      "error_detail": "Output: [-1,-1]\nExpected: [4,-1]\n(Input: nums = [-1,0,3,5,9,12], target = 9)"
+    },
+    {
+      "minute": 14.0,
+      "kind": "run",
+      "status": "Passed sample tests",
+      "tests_passed": 2,
+      "tests_total": 2
+    },
+    {
+      "minute": 16.0,
+      "kind": "submit",
+      "status": "Accepted",
+      "tests_passed": 47,
+      "tests_total": 47
+    }
+  ],
+  "expected": {
+    "status": "passed",
+    "category": [
+      "Binary Search"
+    ],
+    "required_gaps": [
+      {
+        "tags": [
+          "off-by-one",
+          "algorithm-recall"
+        ],
+        "description": "Mixed an exclusive right bound (r = len(nums), while l < r) with the inclusive update r = m - 1, so the loop exits before checking the target (fails on nums = [-1,0,3,5,9,12], target = 9); fixed by using inclusive bounds consistently."
+      }
+    ],
+    "pattern_keywords": [
+      "binary search"
+    ],
+    "time_complexity_includes": "log",
+    "must_not_claim": [
+      "that the final solution is O(n)",
+      "that the first run passed",
+      "that any submission failed"
+    ]
+  }
+}

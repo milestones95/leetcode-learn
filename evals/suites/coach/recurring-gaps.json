@@ -1,0 +1,624 @@
+{
+  "today": "2026-10-24",
+  "problems": [
+    {
+      "slug": "contains-duplicate",
+      "frontend_id": "217",
+      "title": "Contains Duplicate",
+      "difficulty": "Easy",
+      "category": "Arrays & Hashing",
+      "tags": []
+    },
+    {
+      "slug": "valid-anagram",
+      "frontend_id": "242",
+      "title": "Valid Anagram",
+      "difficulty": "Easy",
+      "category": "Arrays & Hashing",
+      "tags": []
+    },
+    {
+      "slug": "two-sum",
+      "frontend_id": "1",
+      "title": "Two Sum",
+      "difficulty": "Easy",
+      "category": "Arrays & Hashing",
+      "tags": []
+    },
+    {
+      "slug": "group-anagrams",
+      "frontend_id": "49",
+      "title": "Group Anagrams",
+      "difficulty": "Medium",
+      "category": "Arrays & Hashing",
+      "tags": []
+    },
+    {
+      "slug": "top-k-frequent-elements",
+      "frontend_id": "347",
+      "title": "Top K Frequent Elements",
+      "difficulty": "Medium",
+      "category": "Arrays & Hashing",
+      "tags": []
+    },
+    {
+      "slug": "product-of-array-except-self",
+      "frontend_id": "238",
+      "title": "Product of Array Except Self",
+      "difficulty": "Medium",
+      "category": "Arrays & Hashing",
+      "tags": []
+    },
+    {
+      "slug": "longest-consecutive-sequence",
+      "frontend_id": "128",
+      "title": "Longest Consecutive Sequence",
+      "difficulty": "Medium",
+      "category": "Arrays & Hashing",
+      "tags": []
+    },
+    {
+      "slug": "valid-palindrome",
+      "frontend_id": "125",
+      "title": "Valid Palindrome",
+      "difficulty": "Easy",
+      "category": "Two Pointers",
+      "tags": []
+    },
+    {
+      "slug": "two-sum-ii-input-array-is-sorted",
+      "frontend_id": "167",
+      "title": "Two Sum II - Input Array Is Sorted",
+      "difficulty": "Medium",
+      "category": "Two Pointers",
+      "tags": []
+    },
+    {
+      "slug": "3sum",
+      "frontend_id": "15",
+      "title": "3Sum",
+      "difficulty": "Medium",
+      "category": "Two Pointers",
+      "tags": []
+    },
+    {
+      "slug": "container-with-most-water",
+      "frontend_id": "11",
+      "title": "Container With Most Water",
+      "difficulty": "Medium",
+      "category": "Two Pointers",
+      "tags": []
+    },
+    {
+      "slug": "trapping-rain-water",
+      "frontend_id": "42",
+      "title": "Trapping Rain Water",
+      "difficulty": "Hard",
+      "category": "Two Pointers",
+      "tags": []
+    },
+    {
+      "slug": "number-of-islands",
+      "frontend_id": "200",
+      "title": "Number of Islands",
+      "difficulty": "Medium",
+      "category": "Graphs",
+      "tags": []
+    },
+    {
+      "slug": "clone-graph",
+      "frontend_id": "133",
+      "title": "Clone Graph",
+      "difficulty": "Medium",
+      "category": "Graphs",
+      "tags": []
+    },
+    {
+      "slug": "max-area-of-island",
+      "frontend_id": "695",
+      "title": "Max Area of Island",
+      "difficulty": "Medium",
+      "category": "Graphs",
+      "tags": []
+    },
+    {
+      "slug": "pacific-atlantic-water-flow",
+      "frontend_id": "417",
+      "title": "Pacific Atlantic Water Flow",
+      "difficulty": "Medium",
+      "category": "Graphs",
+      "tags": []
+    },
+    {
+      "slug": "surrounded-regions",
+      "frontend_id": "130",
+      "title": "Surrounded Regions",
+      "difficulty": "Medium",
+      "category": "Graphs",
+      "tags": []
+    },
+    {
+      "slug": "rotting-oranges",
+      "frontend_id": "994",
+      "title": "Rotting Oranges",
+      "difficulty": "Medium",
+      "category": "Graphs",
+      "tags": []
+    },
+    {
+      "slug": "flood-fill",
+      "frontend_id": "733",
+      "title": "Flood Fill",
+      "difficulty": "Easy",
+      "category": "Graphs",
+      "tags": []
+    },
+    {
+      "slug": "climbing-stairs",
+      "frontend_id": "70",
+      "title": "Climbing Stairs",
+      "difficulty": "Easy",
+      "category": "1-D DP",
+      "tags": []
+    },
+    {
+      "slug": "house-robber",
+      "frontend_id": "198",
+      "title": "House Robber",
+      "difficulty": "Medium",
+      "category": "1-D DP",
+      "tags": []
+    },
+    {
+      "slug": "coin-change",
+      "frontend_id": "322",
+      "title": "Coin Change",
+      "difficulty": "Medium",
+      "category": "1-D DP",
+      "tags": []
+    },
+    {
+      "slug": "min-cost-climbing-stairs",
+      "frontend_id": "746",
+      "title": "Min Cost Climbing Stairs",
+      "difficulty": "Easy",
+      "category": "1-D DP",
+      "tags": []
+    },
+    {
+      "slug": "longest-increasing-subsequence",
+      "frontend_id": "300",
+      "title": "Longest Increasing Subsequence",
+      "difficulty": "Medium",
+      "category": "1-D DP",
+      "tags": []
+    },
+    {
+      "slug": "decode-ways",
+      "frontend_id": "91",
+      "title": "Decode Ways",
+      "difficulty": "Medium",
+      "category": "1-D DP",
+      "tags": []
+    },
+    {
+      "slug": "word-break",
+      "frontend_id": "139",
+      "title": "Word Break",
+      "difficulty": "Medium",
+      "category": "1-D DP",
+      "tags": []
+    },
+    {
+      "slug": "binary-search",
+      "frontend_id": "704",
+      "title": "Binary Search",
+      "difficulty": "Easy",
+      "category": "Binary Search",
+      "tags": []
+    },
+    {
+      "slug": "search-a-2d-matrix",
+      "frontend_id": "74",
+      "title": "Search a 2D Matrix",
+      "difficulty": "Medium",
+      "category": "Binary Search",
+      "tags": []
+    },
+    {
+      "slug": "koko-eating-bananas",
+      "frontend_id": "875",
+      "title": "Koko Eating Bananas",
+      "difficulty": "Medium",
+      "category": "Binary Search",
+      "tags": []
+    },
+    {
+      "slug": "find-minimum-in-rotated-sorted-array",
+      "frontend_id": "153",
+      "title": "Find Minimum in Rotated Sorted Array",
+      "difficulty": "Medium",
+      "category": "Binary Search",
+      "tags": []
+    },
+    {
+      "slug": "search-in-rotated-sorted-array",
+      "frontend_id": "33",
+      "title": "Search in Rotated Sorted Array",
+      "difficulty": "Medium",
+      "category": "Binary Search",
+      "tags": []
+    },
+    {
+      "slug": "invert-binary-tree",
+      "frontend_id": "226",
+      "title": "Invert Binary Tree",
+      "difficulty": "Easy",
+      "category": "Trees",
+      "tags": []
+    },
+    {
+      "slug": "maximum-depth-of-binary-tree",
+      "frontend_id": "104",
+      "title": "Maximum Depth of Binary Tree",
+      "difficulty": "Easy",
+      "category": "Trees",
+      "tags": []
+    },
+    {
+      "slug": "same-tree",
+      "frontend_id": "100",
+      "title": "Same Tree",
+      "difficulty": "Easy",
+      "category": "Trees",
+      "tags": []
+    },
+    {
+      "slug": "diameter-of-binary-tree",
+      "frontend_id": "543",
+      "title": "Diameter of Binary Tree",
+      "difficulty": "Easy",
+      "category": "Trees",
+      "tags": []
+    },
+    {
+      "slug": "binary-tree-level-order-traversal",
+      "frontend_id": "102",
+      "title": "Binary Tree Level Order Traversal",
+      "difficulty": "Medium",
+      "category": "Trees",
+      "tags": []
+    },
+    {
+      "slug": "valid-parentheses",
+      "frontend_id": "20",
+      "title": "Valid Parentheses",
+      "difficulty": "Easy",
+      "category": "Stack",
+      "tags": []
+    },
+    {
+      "slug": "min-stack",
+      "frontend_id": "155",
+      "title": "Min Stack",
+      "difficulty": "Medium",
+      "category": "Stack",
+      "tags": []
+    },
+    {
+      "slug": "daily-temperatures",
+      "frontend_id": "739",
+      "title": "Daily Temperatures",
+      "difficulty": "Medium",
+      "category": "Stack",
+      "tags": []
+    },
+    {
+      "slug": "best-time-to-buy-and-sell-stock",
+      "frontend_id": "121",
+      "title": "Best Time to Buy and Sell Stock",
+      "difficulty": "Easy",
+      "category": "Sliding Window",
+      "tags": []
+    },
+    {
+      "slug": "longest-substring-without-repeating-characters",
+      "frontend_id": "3",
+      "title": "Longest Substring Without Repeating Characters",
+      "difficulty": "Medium",
+      "category": "Sliding Window",
+      "tags": []
+    },
+    {
+      "slug": "longest-repeating-character-replacement",
+      "frontend_id": "424",
+      "title": "Longest Repeating Character Replacement",
+      "difficulty": "Medium",
+      "category": "Sliding Window",
+      "tags": []
+    },
+    {
+      "slug": "kth-largest-element-in-a-stream",
+      "frontend_id": "703",
+      "title": "Kth Largest Element in a Stream",
+      "difficulty": "Easy",
+      "category": "Heap",
+      "tags": []
+    },
+    {
+      "slug": "last-stone-weight",
+      "frontend_id": "1046",
+      "title": "Last Stone Weight",
+      "difficulty": "Easy",
+      "category": "Heap",
+      "tags": []
+    },
+    {
+      "slug": "k-closest-points-to-origin",
+      "frontend_id": "973",
+      "title": "K Closest Points to Origin",
+      "difficulty": "Medium",
+      "category": "Heap",
+      "tags": []
+    }
+  ],
+  "attempts": [
+    {
+      "slug": "contains-duplicate",
+      "date": "2026-09-20",
+      "status": "passed",
+      "category": "Arrays & Hashing",
+      "time_taken_min": 6,
+      "gaps": []
+    },
+    {
+      "slug": "valid-anagram",
+      "date": "2026-09-21",
+      "status": "passed",
+      "category": "Arrays & Hashing",
+      "time_taken_min": 9,
+      "gaps": []
+    },
+    {
+      "slug": "valid-palindrome",
+      "date": "2026-09-22",
+      "status": "passed",
+      "category": "Two Pointers",
+      "time_taken_min": 12,
+      "gaps": [
+        {
+          "tag": "language-syntax",
+          "detail": "Looked up str.isalnum()."
+        }
+      ]
+    },
+    {
+      "slug": "two-sum",
+      "date": "2026-09-25",
+      "status": "passed",
+      "category": "Arrays & Hashing",
+      "time_taken_min": 8,
+      "gaps": []
+    },
+    {
+      "slug": "two-sum-ii-input-array-is-sorted",
+      "date": "2026-09-28",
+      "status": "passed",
+      "category": "Two Pointers",
+      "time_taken_min": 15,
+      "gaps": []
+    },
+    {
+      "slug": "container-with-most-water",
+      "date": "2026-10-01",
+      "status": "passed",
+      "category": "Two Pointers",
+      "time_taken_min": 20,
+      "gaps": []
+    },
+    {
+      "slug": "binary-search",
+      "date": "2026-10-02",
+      "status": "passed",
+      "category": "Binary Search",
+      "time_taken_min": 10,
+      "gaps": []
+    },
+    {
+      "slug": "flood-fill",
+      "date": "2026-10-03",
+      "status": "passed",
+      "category": "Graphs",
+      "time_taken_min": 14,
+      "gaps": []
+    },
+    {
+      "slug": "valid-parentheses",
+      "date": "2026-10-04",
+      "status": "passed",
+      "category": "Stack",
+      "time_taken_min": 10,
+      "gaps": []
+    },
+    {
+      "slug": "group-anagrams",
+      "date": "2026-10-05",
+      "status": "passed",
+      "category": "Arrays & Hashing",
+      "time_taken_min": 22,
+      "gaps": []
+    },
+    {
+      "slug": "climbing-stairs",
+      "date": "2026-10-06",
+      "status": "failed",
+      "category": "1-D DP",
+      "time_taken_min": 25,
+      "gaps": [
+        {
+          "tag": "pattern-recognition",
+          "detail": "Wrote plain recursion and hit TLE; didn't recognize overlapping subproblems that memoization or a bottom-up table fixes."
+        }
+      ]
+    },
+    {
+      "slug": "number-of-islands",
+      "date": "2026-10-08",
+      "status": "failed",
+      "category": "Graphs",
+      "time_taken_min": 35,
+      "gaps": [
+        {
+          "tag": "pattern-recognition",
+          "detail": "Tried to count islands by scanning rows before switching to DFS flood fill."
+        },
+        {
+          "tag": "edge-cases",
+          "detail": "Didn't mark cells visited before recursing, so cells were revisited and recursion depth blew up."
+        }
+      ]
+    },
+    {
+      "slug": "house-robber",
+      "date": "2026-10-09",
+      "status": "gave_up",
+      "category": "1-D DP",
+      "time_taken_min": 30,
+      "gaps": [
+        {
+          "tag": "pattern-recognition",
+          "detail": "Couldn't define the recurrence rob(i) = max(rob(i-1), rob(i-2) + nums[i])."
+        }
+      ]
+    },
+    {
+      "slug": "coin-change",
+      "date": "2026-10-10",
+      "status": "failed",
+      "category": "1-D DP",
+      "time_taken_min": 40,
+      "gaps": [
+        {
+          "tag": "algorithm-recall",
+          "detail": "Used greedy largest-coin-first, which fails on coins [1,3,4], amount 6; needs DP over amounts."
+        },
+        {
+          "tag": "complexity-constraints",
+          "detail": "Recursive retry without memo timed out."
+        }
+      ]
+    },
+    {
+      "slug": "search-a-2d-matrix",
+      "date": "2026-10-11",
+      "status": "failed",
+      "category": "Binary Search",
+      "time_taken_min": 28,
+      "gaps": [
+        {
+          "tag": "off-by-one",
+          "detail": "Row/column math from a flattened index was off by one (used / n+1)."
+        }
+      ]
+    },
+    {
+      "slug": "top-k-frequent-elements",
+      "date": "2026-10-12",
+      "status": "passed",
+      "category": "Arrays & Hashing",
+      "time_taken_min": 18,
+      "gaps": [
+        {
+          "tag": "complexity-constraints",
+          "detail": "Sorted all counts in O(n log n); the follow-up asks for better."
+        }
+      ]
+    },
+    {
+      "slug": "max-area-of-island",
+      "date": "2026-10-14",
+      "status": "gave_up",
+      "category": "Graphs",
+      "time_taken_min": 30,
+      "gaps": [
+        {
+          "tag": "pattern-recognition",
+          "detail": "Didn't see the DFS should return the area of each island."
+        },
+        {
+          "tag": "gave-up-early",
+          "detail": "Stopped after the first approach failed instead of sketching a DFS on the example grid."
+        }
+      ]
+    },
+    {
+      "slug": "koko-eating-bananas",
+      "date": "2026-10-15",
+      "status": "passed",
+      "category": "Binary Search",
+      "time_taken_min": 24,
+      "gaps": []
+    },
+    {
+      "slug": "rotting-oranges",
+      "date": "2026-10-18",
+      "status": "failed",
+      "category": "Graphs",
+      "time_taken_min": 40,
+      "gaps": [
+        {
+          "tag": "pattern-recognition",
+          "detail": "Used DFS per rotten orange; the problem needs a multi-source BFS by minute."
+        },
+        {
+          "tag": "edge-cases",
+          "detail": "Returned -1 instead of 0 when there were no fresh oranges."
+        }
+      ]
+    },
+    {
+      "slug": "invert-binary-tree",
+      "date": "2026-10-19",
+      "status": "passed",
+      "category": "Trees",
+      "time_taken_min": 7,
+      "gaps": []
+    },
+    {
+      "slug": "maximum-depth-of-binary-tree",
+      "date": "2026-10-21",
+      "status": "passed",
+      "category": "Trees",
+      "time_taken_min": 6,
+      "gaps": []
+    },
+    {
+      "slug": "product-of-array-except-self",
+      "date": "2026-10-22",
+      "status": "passed",
+      "category": "Arrays & Hashing",
+      "time_taken_min": 25,
+      "gaps": []
+    }
+  ],
+  "id": "recurring-gaps",
+  "description": "Gap question; pattern-recognition is by far the most common gap.",
+  "question": "What mistakes do I keep making, and what should I do about them?",
+  "expected": {
+    "must_call_tools": [
+      "get_common_gaps"
+    ],
+    "must_mention": [
+      [
+        "pattern-recognition",
+        "pattern recognition",
+        "recogniz"
+      ]
+    ],
+    "judge_criteria": [
+      "Names pattern recognition as the most frequent gap, consistent with the get_common_gaps counts",
+      "Advice is specific to the examples in the data (e.g. DP recurrences, BFS vs DFS on grids), not generic",
+      "Any counts it states match the tool output"
+    ]
+  }
+}

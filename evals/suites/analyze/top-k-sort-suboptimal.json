@@ -1,0 +1,79 @@
+{
+  "id": "top-k-sort-suboptimal",
+  "description": "Accepted with Counter + sort (O(n log n)); optimal is bucket sort O(n) or heap O(n log k).",
+  "problem": {
+    "slug": "top-k-frequent-elements",
+    "title": "Top K Frequent Elements",
+    "difficulty": "Medium",
+    "tags": [
+      "array",
+      "hash-table",
+      "divide-and-conquer",
+      "sorting",
+      "heap-priority-queue",
+      "bucket-sort",
+      "counting",
+      "quickselect"
+    ],
+    "category": "Heap",
+    "description": "Given an integer array nums and an integer k, return the k most frequent elements. You may return the answer in any order. Follow up: Your algorithm's time complexity must be better than O(n log n), where n is the array's size."
+  },
+  "session": {
+    "started_at": "2026-10-20T15:00:00.000Z",
+    "ended_minute": 11.0,
+    "end_reason": "accepted"
+  },
+  "snapshots": [
+    {
+      "minute": 0,
+      "language": "python3",
+      "code": "class Solution:\n    def topKFrequent(self, nums: List[int], k: int) -> List[int]:\n        "
+    },
+    {
+      "minute": 5.0,
+      "language": "python3",
+      "code": "class Solution:\n    def topKFrequent(self, nums: List[int], k: int) -> List[int]:\n        count = {}\n        for n in nums:\n            count[n] = count.get(n, 0) + 1\n        items = sorted(count.items(), key=lambda x: x[1], reverse=True)\n        return [x[0] for x in items[:k]]"
+    }
+  ],
+  "judge_events": [
+    {
+      "minute": 6.0,
+      "kind": "run",
+      "status": "Passed sample tests",
+      "tests_passed": 2,
+      "tests_total": 2
+    },
+    {
+      "minute": 11.0,
+      "kind": "submit",
+      "status": "Accepted",
+      "tests_passed": 21,
+      "tests_total": 21
+    }
+  ],
+  "expected": {
+    "status": "passed",
+    "category": [
+      "Heap",
+      "Arrays & Hashing"
+    ],
+    "required_gaps": [
+      {
+        "tags": [
+          "complexity-constraints"
+        ],
+        "description": "Sorting all counts is O(n log n), which the problem's follow-up explicitly rules out; bucket sort by frequency (O(n)) or a size-k heap (O(n log k)) meets it."
+      }
+    ],
+    "pattern_keywords": [
+      "sort",
+      "count",
+      "hash"
+    ],
+    "time_complexity_includes": "log",
+    "must_not_claim": [
+      "that the submission failed",
+      "that the user used a heap or bucket sort"
+    ]
+  }
+}

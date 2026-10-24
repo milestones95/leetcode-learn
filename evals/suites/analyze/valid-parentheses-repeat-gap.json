@@ -1,0 +1,100 @@
+{
+  "id": "valid-parentheses-repeat-gap",
+  "description": "Same empty-stack edge case the user missed in an earlier attempt; the analysis should call out the repeat.",
+  "problem": {
+    "slug": "valid-parentheses",
+    "title": "Valid Parentheses",
+    "difficulty": "Easy",
+    "tags": [
+      "string",
+      "stack"
+    ],
+    "category": "Stack",
+    "description": "Given a string s containing just the characters '(', ')', '{', '}', '[' and ']', determine if the input string is valid. An input string is valid if open brackets are closed by the same type of brackets, open brackets are closed in the correct order, and every close bracket has a corresponding open bracket of the same type."
+  },
+  "history": [
+    {
+      "slug": "valid-parentheses",
+      "date": "2026-09-02",
+      "status": "failed",
+      "category": "Stack",
+      "time_taken_min": 18,
+      "approach_pattern": "stack",
+      "gaps": [
+        {
+          "tag": "edge-cases",
+          "detail": "Popped from the stack on a closing bracket without checking it was empty; crashed on input \"]\"."
+        }
+      ]
+    }
+  ],
+  "session": {
+    "started_at": "2026-10-20T15:00:00.000Z",
+    "ended_minute": 12.0,
+    "end_reason": "accepted"
+  },
+  "snapshots": [
+    {
+      "minute": 0,
+      "language": "python3",
+      "code": "class Solution:\n    def isValid(self, s: str) -> bool:\n        "
+    },
+    {
+      "minute": 4.0,
+      "language": "python3",
+      "code": "class Solution:\n    def isValid(self, s: str) -> bool:\n        pairs = {')': '(', ']': '[', '}': '{'}\n        stack = []\n        for c in s:\n            if c in pairs:\n                if stack.pop() != pairs[c]:\n                    return False\n            else:\n                stack.append(c)\n        return not stack"
+    },
+    {
+      "minute": 10.0,
+      "language": "python3",
+      "code": "class Solution:\n    def isValid(self, s: str) -> bool:\n        pairs = {')': '(', ']': '[', '}': '{'}\n        stack = []\n        for c in s:\n            if c in pairs:\n                if not stack or stack.pop() != pairs[c]:\n                    return False\n            else:\n                stack.append(c)\n        return not stack"
+    }
+  ],
+  "judge_events": [
+    {
+      "minute": 5.0,
+      "kind": "run",
+      "status": "Passed sample tests",
+      "tests_passed": 3,
+      "tests_total": 3
+    },
+    {
+      "minute": 6.0,
+      "kind": "submit",
+      "status": "Runtime Error",
+      "tests_passed": 72,
+      "tests_total": 99,
+      "error_detail": "IndexError: pop from empty list\nLast executed input: s = \"]\""
+    },
+    {
+      "minute": 12.0,
+      "kind": "submit",
+      "status": "Accepted",
+      "tests_passed": 99,
+      "tests_total": 99
+    }
+  ],
+  "expected": {
+    "status": "passed",
+    "category": [
+      "Stack"
+    ],
+    "required_gaps": [
+      {
+        "tags": [
+          "edge-cases"
+        ],
+        "description": "Popped from an empty stack on a leading closing bracket (IndexError on \"]\"), the same mistake as the 2026-09-02 attempt."
+      }
+    ],
+    "pattern_keywords": [
+      "stack"
+    ],
+    "mentions_repeat": true,
+    "time_complexity_includes": "n",
+    "must_not_claim": [
+      "that this is the first time the user attempted the problem",
+      "that the first submission was Accepted"
+    ]
+  }
+}

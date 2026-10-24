@@ -1,0 +1,34 @@
+{
+  "name": "leetcode-analyzer",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "tsx server/src/ingest.ts",
+    "mcp": "tsx server/src/mcp/server.ts",
+    "inspect": "npx @modelcontextprotocol/inspector npx tsx server/src/mcp/server.ts",
+    "seed:problems": "tsx server/src/seed-problems.ts",
+    "analyze": "tsx server/src/agent/analyze-session.ts",
+    "coach": "tsx server/src/agent/coach.ts",
+    "eval": "tsx evals/run.ts",
+    "eval:capture": "tsx evals/capture.ts",
+    "smoke": "tsx scripts/smoke.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "Watches LeetCode practice, analyzes each attempt with an MCP-tool agent, and coaches you on what to practice next.",
+  "type": "module",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.3.0",
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "better-sqlite3": "^12.11.1",
+    "openai": "^6.49.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^9.6.0",
+    "@types/node": "^26.6.5",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}

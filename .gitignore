@@ -1,0 +1,8 @@
+node_modules/
+data/
+traces/
+evals/results/
+.env
+.DS_Store
+# personal practice history (not code)
+*.csv

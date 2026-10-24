@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "LeetCode Practice Analyzer",
+  "version": "0.1.0",
+  "description": "Captures your LeetCode code and results and sends them to your local analyzer.",
+  "permissions": ["storage", "activeTab"],
+  "host_permissions": ["http://localhost:7777/*"],
+  "background": { "service_worker": "background.js" },
+  "content_scripts": [
+    {
+      "matches": ["https://leetcode.com/*"],
+      "js": ["page-hook.js"],
+      "world": "MAIN",
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["https://leetcode.com/*"],
+      "js": ["relay.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": { "default_popup": "popup.html", "default_title": "LeetCode Practice Analyzer" }
+}

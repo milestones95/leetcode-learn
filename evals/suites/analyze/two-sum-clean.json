@@ -1,0 +1,71 @@
+{
+  "id": "two-sum-clean",
+  "description": "Clean first-try Accepted with the optimal one-pass hash map. Should produce few or no gaps.",
+  "problem": {
+    "slug": "two-sum",
+    "title": "Two Sum",
+    "difficulty": "Easy",
+    "tags": [
+      "array",
+      "hash-table"
+    ],
+    "category": "Arrays & Hashing",
+    "description": "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target. You may assume that each input would have exactly one solution, and you may not use the same element twice."
+  },
+  "session": {
+    "started_at": "2026-10-20T15:00:00.000Z",
+    "ended_minute": 9.0,
+    "end_reason": "accepted"
+  },
+  "snapshots": [
+    {
+      "minute": 0,
+      "language": "python3",
+      "code": "class Solution:\n    def twoSum(self, nums: List[int], target: int) -> List[int]:\n        "
+    },
+    {
+      "minute": 3.5,
+      "language": "python3",
+      "code": "class Solution:\n    def twoSum(self, nums: List[int], target: int) -> List[int]:\n        seen = {}\n        for i, n in enumerate(nums):"
+    },
+    {
+      "minute": 6.0,
+      "language": "python3",
+      "code": "class Solution:\n    def twoSum(self, nums: List[int], target: int) -> List[int]:\n        seen = {}\n        for i, n in enumerate(nums):\n            if target - n in seen:\n                return [seen[target - n], i]\n            seen[n] = i"
+    }
+  ],
+  "judge_events": [
+    {
+      "minute": 7.0,
+      "kind": "run",
+      "status": "Passed sample tests",
+      "tests_passed": 3,
+      "tests_total": 3
+    },
+    {
+      "minute": 9.0,
+      "kind": "submit",
+      "status": "Accepted",
+      "tests_passed": 63,
+      "tests_total": 63
+    }
+  ],
+  "expected": {
+    "status": "passed",
+    "category": [
+      "Arrays & Hashing"
+    ],
+    "required_gaps": [],
+    "max_gaps": 1,
+    "pattern_keywords": [
+      "hash",
+      "dict",
+      "map"
+    ],
+    "time_complexity_includes": "n",
+    "must_not_claim": [
+      "that any submission failed or got Wrong Answer",
+      "that the solution is brute force or O(n^2)"
+    ]
+  }
+}
